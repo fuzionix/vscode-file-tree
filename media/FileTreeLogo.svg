@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 600 600">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #e5571c;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        fill: url(#linear-gradient-2);
+      }
+
+      .cls-3 {
+        fill: url(#linear-gradient);
+      }
+
+      .cls-5 {
+        fill: none;
+      }
+
+      .cls-4 {
+        fill: #bf4917;
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="230" y1="360.62" x2="580" y2="360.62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d94d23"/>
+      <stop offset="1" stop-color="#ff824c"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="20" y1="178.76" x2="580" y2="178.76" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff824c"/>
+      <stop offset="1" stop-color="#ffc999"/>
+    </linearGradient>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <rect class="cls-5" width="600" height="600"/>
+      <g>
+        <polygon class="cls-1" points="300 219.18 230 259.58 160 219.18 160 138.34 230 178.77 300 219.18"/>
+        <polygon class="cls-1" points="440 138.34 370 178.75 300 138.34 300 57.53 440 138.34"/>
+        <polygon class="cls-4" points="370 340.42 370 502.06 300 461.66 300 380.82 370 340.42"/>
+        <polygon class="cls-4" points="510 259.58 510 421.25 440 380.84 440 299.99 510 259.58"/>
+        <polygon class="cls-1" points="230 340.42 230 582.9 160 542.49 160 380.82 20 300.01 20 219.18 90 259.58 160 300.01 230 340.42"/>
+        <polygon class="cls-3" points="580 138.34 580 380.82 579.98 380.82 510 421.23 510 259.58 440 299.99 440 461.66 370 502.06 370 340.42 300 380.82 300 542.49 230 582.9 230 340.42 300 300.01 370 259.58 440 219.18 510 178.77 510 178.75 580 138.34"/>
+        <polygon class="cls-2" points="580 138.34 510 178.75 510 178.77 440 219.18 370 259.58 300 300.01 230 340.42 160 300.01 90 259.58 20 219.18 90 178.77 160 219.18 230 259.58 300 219.18 230 178.77 160 138.34 230 97.94 300 138.34 370 178.75 440 138.34 300 57.53 300 57.51 370 17.1 370.02 17.1 440 57.51 440.02 57.51 510 97.92 580 138.34"/>
+      </g>
+    </g>
+  </g>
+</svg>

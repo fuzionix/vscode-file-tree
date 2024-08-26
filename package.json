@@ -11,12 +11,20 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./extension.js",
+  "main": "./src/extension.js",
   "contributes": {
     "commands": [{
       "command": "file-tree-extractor.copyFileTree",
       "title": "Copy File Tree to Clipboard"
-    }]
+    }],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "file-tree-extractor.copyFileTree",
+          "group": "6_copypath@100"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",
