@@ -13,18 +13,34 @@
   "activationEvents": [],
   "main": "./src/extension.js",
   "contributes": {
-    "commands": [{
-      "command": "file-tree-extractor.copyFileTree",
-      "title": "Copy File Tree to Clipboard"
-    }],
+    "commands": [
+      {
+        "command": "file-tree-extractor.copyFileTree",
+        "title": "Copy File Tree"
+      },
+      {
+        "command": "file-tree-extractor.copyFileTreeFromThisDir",
+        "title": "Copy File Tree From This Directory"
+      }
+  ],
     "menus": {
       "explorer/context": [
         {
           "command": "file-tree-extractor.copyFileTree",
-          "group": "6_copypath@100"
+          "group": "6_copypath@500"
+        },
+        {
+          "command": "file-tree-extractor.copyFileTreeFromThisDir",
+          "group": "6_copypath@500"
         }
       ]
+    },
+    "keybindings": [
+    {
+      "command": "file-tree-extractor.copyFileTree",
+      "key": "ctrl+alt+c"
     }
+  ]
   },
   "scripts": {
     "lint": "eslint .",
