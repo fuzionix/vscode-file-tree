@@ -17,6 +17,7 @@ function activate(context) {
 			} 
 			rootPath = workspaceFolder[0].uri.fsPath
 			const fileTree = await generateFileTree(rootPath)
+			await copyToClipboard(fileTree)
 			vscode.window.showInformationMessage('Copied file tree to clipboard.')
 		} catch (error) {
 			vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
@@ -37,8 +38,7 @@ function activate(context) {
 				targetPath = workspaceFolder[0].uri.fsPath
 			}
 			const fileTree = await generateFileTree(targetPath)
-      // await copyToClipboard(fileTree)
-			console.log(fileTree)
+      await copyToClipboard(fileTree)
 			vscode.window.showInformationMessage('Copied file tree from this directary to clipboard.')
 		} catch (error) {
 			vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)

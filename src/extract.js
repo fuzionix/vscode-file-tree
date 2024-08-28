@@ -9,8 +9,7 @@ const vscode = require('vscode')
  */
 async function generateFileTree(startPath) {
   const tree = await buildTree(startPath)
-  // return formatTree(tree, '', true)
-  return tree
+  return formatTree(tree, '', true)
 }
 
 /**
@@ -33,7 +32,7 @@ async function buildTree(itemPath) {
         )
         return {
           name,
-          type: 'directary',
+          type: 'directory',
           children: childNodes.filter(node => !shouldIgnore(node?.name || ''))
         }
       }
@@ -42,6 +41,33 @@ async function buildTree(itemPath) {
       return { name, type: 'directory', children: [] }
     }
   }
+}
+
+/**
+ * Formats the tree object into a string representation
+ * @param {Object} node - The current node in the tree
+ * @param {string} prefix - The prefix to use for the current line
+ * @param {boolean} isLast - Whether this is the last item in its parent
+ * @returns {string} The formatted tree string
+ */
+function formatTree(node, prefix = '', isLast = true, depth = 0) {
+  let result = prefix
+  
+  if (prefix !== '' || depth === 1) {
+    result += isLast ? '└─ ' : '├─ '
+  }
+  
+  result += node.name + (node.type === 'directory' ? '/' : '') + '\n'
+
+  if (node.type === 'directory' && node.children) {
+    const childPrefix = prefix + (depth ? (isLast ? '   ' : '│  ') : '')
+    node.children.forEach((child, index) => {
+      const isLastChild = index === node.children.length - 1
+      result += formatTree(child, childPrefix, isLastChild, depth + 1)
+    })
+  }
+  
+  return result
 }
 
 /**
