@@ -7,7 +7,7 @@ const { copyToClipboard } = require('./utils')
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-	const command = vscode.commands.registerCommand('file-tree-extractor.copyFileTree', async(uri) => {
+	const command = vscode.commands.registerCommand('fileTreeExtractor.copyFileTree', async(uri) => {
 		try {
 			let rootPath
 			const workspaceFolder = vscode.workspace.workspaceFolders
@@ -24,7 +24,7 @@ function activate(context) {
 		}
 	})
 
-	const commandDir = vscode.commands.registerCommand('file-tree-extractor.copyFileTreeFromThisDir', async(uri) => {
+	const commandDir = vscode.commands.registerCommand('fileTreeExtractor.copyFileTreeFromThisDir', async(uri) => {
 		try {
 			let targetPath
 			if (uri && uri.fsPath) {

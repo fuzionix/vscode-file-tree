@@ -3,7 +3,7 @@
   "displayName": "File Tree Extractor",
   "publisher": "Fuzionix",
   "description": "Generate a directory structure for the current project by simply copy and paste",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.92.0"
   },
@@ -15,32 +15,63 @@
   "contributes": {
     "commands": [
       {
-        "command": "file-tree-extractor.copyFileTree",
+        "command": "fileTreeExtractor.copyFileTree",
         "title": "Copy File Tree"
       },
       {
-        "command": "file-tree-extractor.copyFileTreeFromThisDir",
+        "command": "fileTreeExtractor.copyFileTreeFromThisDir",
         "title": "Copy File Tree From This Directory"
       }
-  ],
+    ],
     "menus": {
       "explorer/context": [
         {
-          "command": "file-tree-extractor.copyFileTree",
+          "command": "fileTreeExtractor.copyFileTree",
           "group": "6_copypath@500"
         },
         {
-          "command": "file-tree-extractor.copyFileTreeFromThisDir",
+          "command": "fileTreeExtractor.copyFileTreeFromThisDir",
           "group": "6_copypath@500"
         }
       ]
     },
     "keybindings": [
-    {
-      "command": "file-tree-extractor.copyFileTree",
-      "key": "ctrl+alt+c"
+      {
+        "command": "fileTreeExtractor.copyFileTree",
+        "key": "ctrl+alt+c"
+      }
+    ],
+    "configuration": {
+      "title": "File Tree Extractor",
+      "properties": {
+        "fileTreeExtractor.ignoredItems": {
+          "type": "array",
+          "default": [".git", "node_modules", ".vscode"],
+          "description": "List of files and folders to ignore when generating the file tree."
+        },
+        "fileTreeExtractor.indent": {
+          "type": "number",
+          "default": 1,
+          "description": "Indent space for each level in the generated tree."
+        },
+        "fileTreeExtractor.showFileSize": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include file sizes in the generated tree."
+        },
+        "fileTreeExtractor.maxDepth": {
+          "type": "number",
+          "default": -1,
+          "description": "Maximum depth of the file tree. Use -1 for unlimited depth."
+        },
+        "fileTreeExtractor.outputFormat": {
+          "type": "string",
+          "enum": ["ascii", "json"],
+          "default": "ascii",
+          "description": "Format of the output tree."
+        }
+      }
     }
-  ]
   },
   "scripts": {
     "lint": "eslint .",
