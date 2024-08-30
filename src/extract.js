@@ -1,10 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const vscode = require('vscode')
-
-function getConfig() {
-  return vscode.workspace.getConfiguration('fileTreeExtractor')
-}
+const { getConfig, shouldIgnore } = require('./utils')
 
 /**
  * Generates a file tree structure starting from the given path
@@ -22,7 +19,7 @@ async function generateFileTree(startPath) {
   let indentLine = ''
   let indentSpan = ''
 
-  const tree = await buildTree(startPath, ignoredItems, showFileSize, maxDepth, depth)
+  const tree = await buildTree(startPath, startPath, ignoredItems, showFileSize, maxDepth, depth)
 
   for (let i = 0; i < indent; i++) {
     indentLine += '─'
@@ -37,13 +34,17 @@ async function generateFileTree(startPath) {
  * @param {string} itemPath - The path of the current item (file or directory)
  * @returns {Promise<Object>} A promise that resolves to an object representing the tree
  */
-async function buildTree(itemPath, ignoredItems = ['node_modules'], showFileSize = false, maxDepth = -1, depth) {
+async function buildTree(itemPath, startPath, ignoredItems = ['node_modules'], showFileSize = false, maxDepth = -1, depth) {
   if (maxDepth !== -1 && depth >= maxDepth) {
     return null
   }
 
   const stats = await fs.promises.stat(itemPath)
   const name = path.basename(itemPath)
+
+  if (shouldIgnore(itemPath, startPath)) {
+    return null
+  }
 
   if (stats.isFile()) {
     return { 
@@ -53,16 +54,14 @@ async function buildTree(itemPath, ignoredItems = ['node_modules'], showFileSize
     }
   } else if (stats.isDirectory()) {
     try {
-      if (!shouldIgnore(name, ignoredItems)) {
-        const children = await fs.promises.readdir(itemPath)
-        const childNodes = await Promise.all(
-          children.map(child => buildTree(path.join(itemPath, child), ignoredItems, showFileSize, maxDepth, depth + 1))
-        )
-        return {
-          name,
-          type: 'directory',
-          children: childNodes.filter(node => !shouldIgnore(node?.name || '', ignoredItems))
-        }
+      const children = await fs.promises.readdir(itemPath)
+      const childNodes = await Promise.all(
+        children.map(child => buildTree(path.join(itemPath, child), startPath, ignoredItems, showFileSize, maxDepth, depth + 1))
+      )
+      return {
+        name,
+        type: 'directory',
+        children: childNodes.filter(node => node !== null)
       }
     } catch (error) {
       console.error(`Error reading directory ${itemPath}:`, error)
@@ -97,19 +96,6 @@ function formatTree(node, prefix = '', isLast = true, depth = 0, indentLine, ind
   }
   
   return result
-}
-
-/**
- * Checks if a file or directory should be ignored
- * @param {string} name - The name of the file or directory
- * @returns {boolean} True if the item should be ignored, false otherwise
- */
-function shouldIgnore(name, ignoredItems) {
-  if (name) {
-    return ignoredItems.includes(name)
-  } else {
-    return true
-  }
 }
 
 module.exports = {

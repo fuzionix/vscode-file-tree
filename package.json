@@ -21,6 +21,10 @@
       {
         "command": "fileTreeExtractor.copyFileTreeFromThisDir",
         "title": "Copy File Tree From This Directory"
+      },
+      {
+        "command": "fileTreeExtractor.reportIssue",
+        "title": "Report an Issue"
       }
     ],
     "menus": {
@@ -46,8 +50,17 @@
       "properties": {
         "fileTreeExtractor.ignoredItems": {
           "type": "array",
-          "default": [".git", "node_modules", ".vscode"],
+          "default": [
+            ".git",
+            "node_modules",
+            ".vscode"
+          ],
           "description": "List of files and folders to ignore when generating the file tree."
+        },
+        "fileTreeExtractor.ignoredBy": {
+          "type": "string",
+          "default": "ignoredItems",
+          "description": "The method to ignore files and folders."
         },
         "fileTreeExtractor.indent": {
           "type": "number",
@@ -66,7 +79,10 @@
         },
         "fileTreeExtractor.outputFormat": {
           "type": "string",
-          "enum": ["ascii", "json"],
+          "enum": [
+            "ascii",
+            "json"
+          ],
           "default": "ascii",
           "description": "Format of the output tree."
         }
@@ -79,12 +95,15 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.92.0",
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
-    "eslint": "^8.57.0",
-    "typescript": "^5.4.5",
+    "@types/vscode": "^1.92.0",
     "@vscode/test-cli": "^0.0.9",
-    "@vscode/test-electron": "^2.4.0"
+    "@vscode/test-electron": "^2.4.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "ignore": "^5.3.2"
   }
 }

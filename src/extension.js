@@ -21,6 +21,7 @@ function activate(context) {
 			vscode.window.showInformationMessage('Copied file tree to clipboard.')
 		} catch (error) {
 			vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
+			console.error(error)
 		}
 	})
 
