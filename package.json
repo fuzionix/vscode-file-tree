@@ -3,7 +3,7 @@
   "displayName": "File Tree Extractor",
   "publisher": "Fuzionix",
   "description": "Generate a directory structure for the current project by simply copy and paste",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.92.0"
   },

@@ -8,10 +8,10 @@ const { copyToClipboard } = require('./utils')
  */
 function activate(context) {
 	const command = vscode.commands.registerCommand('fileTreeExtractor.copyFileTree', async(uri) => {
+		let rootPath
 		try {
-			let rootPath
 			const workspaceFolder = vscode.workspace.workspaceFolders
-			if (!workspaceFolder) {
+			if (!workspaceFolder || workspaceFolder.length === 0) {
 				vscode.window.showErrorMessage('No workspace folder found.')
 				return
 			} 
@@ -20,19 +20,23 @@ function activate(context) {
 			await copyToClipboard(fileTree)
 			vscode.window.showInformationMessage('Copied file tree to clipboard.')
 		} catch (error) {
-			vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
-			console.error(error)
+			if (error.code === 'EACCES') {
+				vscode.window.showErrorMessage(`Error copying file tree: Insufficient permissions to access path ${rootPath}.`)
+			} else {
+				vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
+				console.error(error)
+			}
 		}
 	})
 
 	const commandDir = vscode.commands.registerCommand('fileTreeExtractor.copyFileTreeFromThisDir', async(uri) => {
+		let targetPath
 		try {
-			let targetPath
 			if (uri && uri.fsPath) {
 				targetPath = uri.fsPath
 			} else {
 				const workspaceFolder = vscode.workspace.workspaceFolders
-				if (!workspaceFolder) {
+				if (!workspaceFolder || workspaceFolder.length === 0) {
 					vscode.window.showErrorMessage('No workspace folder found.')
           return
 				} 
@@ -42,8 +46,12 @@ function activate(context) {
       await copyToClipboard(fileTree)
 			vscode.window.showInformationMessage('Copied file tree from this directary to clipboard.')
 		} catch (error) {
-			vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
-			console.error(error)
+			if (error.code === 'EACCES') {
+				vscode.window.showErrorMessage(`Error copying file tree: Insufficient permissions to access path ${targetPath}.`)
+			} else {
+				vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
+				console.error(error)
+			}
 		}
 	})
 	context.subscriptions.push(command)
