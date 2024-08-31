@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="media/FileTreeLogo.svg" alt="File Tree Extractor Logo" width="150" height="200" />
+</p>
+
+---
+
 # File Tree Extractor
 
 Generate a directory structure for your project with a simple copy and paste.
@@ -45,7 +51,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Reporting Issues
 
-If you encounter any problems or have suggestions, please use the "Report an Issue" command in VS Code, or open an issue on our [GitHub repository](https://github.com/Fuzionix/file-tree-extractor).
+If you encounter any problems or have suggestions, please use the "Report an Issue" command in VS Code, or open an issue on [GitHub repository](https://github.com/fuzionix/vscode-file-tree/issues).
 
 ## License
 
