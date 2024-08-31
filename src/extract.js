@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const vscode = require('vscode')
-const { getConfig, shouldIgnore } = require('./utils')
+const { getConfig, shouldIgnore, formatFileSize } = require('./utils')
 
 /**
  * Generates a file tree structure starting from the given path
@@ -10,23 +10,29 @@ const { getConfig, shouldIgnore } = require('./utils')
  */
 async function generateFileTree(startPath) {
   const config = getConfig()
-  const ignoredItems = config.get('ignoredItems')
-  const showFileSize = config.get('showFileSize')
-  const maxDepth = config.get('maxDepth')
-  const outputFormat = config.get('outputFormat')
+  const buildConfig = {
+    ignoredBy: config.get('ignoredBy') || 'ignoredItems',
+    ignoredItems: config.get('ignoredItems') || ['node_modules'],
+    showFileSize: config.get('showFileSize') || false,
+    maxDepth: config.get('maxDepth'),
+    outputFormat: config.get('outputFormat') || 'ascii',
+  }
   const indent = config.get('indent')
   const depth = 0
-  let indentLine = ''
-  let indentSpan = ''
 
-  const tree = await buildTree(startPath, startPath, ignoredItems, showFileSize, maxDepth, depth)
-
-  for (let i = 0; i < indent; i++) {
-    indentLine += '─'
-    indentSpan += ' '
+  const tree = await buildTree(startPath, startPath, buildConfig, depth)
+  
+  if (buildConfig.outputFormat === 'ascii') {
+    let indentLine = ''
+    let indentSpan = ''
+    for (let i = 0; i < indent; i++) {
+      indentLine += '─'
+      indentSpan += ' '
+    }
+    return formatTree(tree, '', true, depth, indentLine, indentSpan)
+  } else {
+    return JSON.stringify(tree, null, indent)
   }
-
-  return formatTree(tree, '', true, depth, indentLine, indentSpan)
 }
 
 /**
@@ -34,15 +40,15 @@ async function generateFileTree(startPath) {
  * @param {string} itemPath - The path of the current item (file or directory)
  * @returns {Promise<Object>} A promise that resolves to an object representing the tree
  */
-async function buildTree(itemPath, startPath, ignoredItems = ['node_modules'], showFileSize = false, maxDepth = -1, depth) {
-  if (maxDepth !== -1 && depth >= maxDepth) {
+async function buildTree(itemPath, startPath, buildConfig, depth) {
+  if (buildConfig.maxDepth !== -1 && depth >= buildConfig.maxDepth) {
     return null
   }
 
   const stats = await fs.promises.stat(itemPath)
   const name = path.basename(itemPath)
 
-  if (shouldIgnore(itemPath, startPath)) {
+  if (shouldIgnore(itemPath, startPath, buildConfig.ignoredBy, buildConfig.ignoredItems)) {
     return null
   }
 
@@ -50,13 +56,13 @@ async function buildTree(itemPath, startPath, ignoredItems = ['node_modules'], s
     return { 
       name, 
       type: 'file',
-      size: showFileSize ? stats.size : null 
+      size: buildConfig.showFileSize ? formatFileSize(stats.size) : null 
     }
   } else if (stats.isDirectory()) {
     try {
       const children = await fs.promises.readdir(itemPath)
       const childNodes = await Promise.all(
-        children.map(child => buildTree(path.join(itemPath, child), startPath, ignoredItems, showFileSize, maxDepth, depth + 1))
+        children.map(child => buildTree(path.join(itemPath, child), startPath, buildConfig, depth + 1))
       )
       return {
         name,
@@ -85,7 +91,7 @@ function formatTree(node, prefix = '', isLast = true, depth = 0, indentLine, ind
   }
   
   if (node) {
-    result += node.name + (node.type === 'directory' ? '/' : '') + '\n'
+    result += node.name + (node.type === 'directory' ? '/' : '') + `${node.size ? ' (' + node.size + ')' : ''}` + '\n'
     if (node.type === 'directory' && node.children) {
       const childPrefix = prefix + (depth ? (isLast ? `  ${indentSpan}` : `│ ${indentSpan}`) : '')
       node.children.forEach((child, index) => {

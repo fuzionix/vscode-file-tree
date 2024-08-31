@@ -43,6 +43,7 @@ function activate(context) {
 			vscode.window.showInformationMessage('Copied file tree from this directary to clipboard.')
 		} catch (error) {
 			vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
+			console.error(error)
 		}
 	})
 	context.subscriptions.push(command)
