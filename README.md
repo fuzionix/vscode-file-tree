@@ -6,7 +6,12 @@
 
 # File Tree Extractor
 
-Generate a directory structure for your project with a simple copy and paste.
+Generate a directory structure with a simple copy and paste.
+
+</br>
+<p align="center">
+  <img src="media/demo.gif" alt="File Tree Extractor Gif Demo" />
+</p>
 
 ## Features
 
@@ -17,9 +22,6 @@ Generate a directory structure for your project with a simple copy and paste.
 - **File Size Information**: Optionally include file sizes in the output.
 - **Depth Control**: Set a maximum depth for the generated tree structure.
 
-
-
-
 ## Usage
 
 1. Right-click on a folder in the VS Code file explorer
@@ -27,13 +29,13 @@ Generate a directory structure for your project with a simple copy and paste.
 3. The file tree will be copied to your clipboard
 4. Paste the tree wherever you need it
 
-Alternatively, use the keyboard shortcut `Ctrl+Alt+C` to copy the file tree of the entire project.
+> Alternatively, use the keyboard shortcut `Ctrl+Alt+C` to copy the file tree of the entire project.
 
 ## Configuration
 
 You can customize the extension's behavior through VS Code settings.
 
-To access these settings, go to File > Preferences > Settings and search for "File Tree Extractor".
+To access these settings, go to `File` > `Preferences` > `Settings` and search for `"File Tree Extractor"`.
 
 ## Commands
 
