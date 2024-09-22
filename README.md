@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="media/FileTreeLogo.svg" alt="File Tree Extractor Logo" width="150" height="200" />
+  <img src="media/SocialPreview.png" alt="File Tree Extractor Logo" width="640" />
 </p>
 
 ---
@@ -10,7 +10,7 @@ Generate a directory structure with a simple copy and paste.
 
 </br>
 <p align="center">
-  <img src="media/demo.gif" alt="File Tree Extractor Gif Demo" />
+  <img src="media/demo.gif" alt="File Tree Extractor Gif Demo" width="640" />
 </p>
 
 ## Features
