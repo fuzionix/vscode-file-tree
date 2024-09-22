@@ -231,7 +231,7 @@ The format of the output tree structure.
 
 ```
 {
-  "name": "menuy",
+  "name": "root",
   "type": "directory",
   "children": [
     {
