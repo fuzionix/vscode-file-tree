@@ -15,12 +15,12 @@ Generate a directory structure with a simple copy and paste.
 
 ## Features
 
-- **Extract from Any Directory**: Support extracting file tree from the root or any subdirectory.
-- **File Filtering**: Automatically filter files based on your project's `.gitignore` or custom ignore rules.
-- **Highly Customizable**: Numerous configuration options to tailor the output.
-- **Multiple Output Formats**: Generate tree structure in ASCII or JSON format.
-- **File Size Information**: Optionally include file sizes in the output.
-- **Depth Control**: Set a maximum depth for the generated tree structure.
+- 📂 **Extract from Any Directory**: Support extracting file tree from the root or any subdirectory.
+- 🔍 **File Filtering**: Automatically filter files based on your project's `.gitignore` or custom ignore rules.
+- 🛠️ **Highly Customizable**: Numerous configuration options to tailor the output.
+- 📝 **Multiple Output Formats**: Generate tree structure in ASCII or JSON format.
+- 💾 **File Size Information**: Optionally include file sizes in the output.
+- ⬇️ **Depth Control**: Set a maximum depth for the generated tree structure.
 
 ## Usage
 
