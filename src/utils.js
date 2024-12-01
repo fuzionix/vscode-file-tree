@@ -21,34 +21,40 @@ async function copyToClipboard(text) {
 }
 
 /**
- * Loads and parses the .gitignore file
- * @param {string} startPath - The root path of the project
+ * Loads and parses the .gitignore file from the workspace root directory
+ * and initializes the ignore patterns
  */
-function loadGitignore(ignoredBy, ignoredItems) {
+function loadGitignore() {
   const workspaceFolder = vscode.workspace.workspaceFolders
   const rootPath = workspaceFolder[0].uri.fsPath
   const gitignorePath = path.join(rootPath, '.gitignore')
-  ig = ignore()
   if (fs.existsSync(gitignorePath)) {
     const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8')
     ig.add(gitignoreContent)
   } else {
     throw new Error('Failed to load gitignore')
   }
-  if (ignoredBy === 'both') {
-    ig.add(ignoredItems)
-  }
-  gitignoreLoaded = true
 }
 
 /**
- * Checks if a file or directory should be ignored
- * @param {string} name - The name of the file or directory
- * @returns {boolean} True if the item should be ignored, false otherwise
+ * Determines whether a given path should be ignored based on gitignore rules
+ * and/or custom ignore patterns
+ * @param {string} itemPath
+ * @param {string} startPath
+ * @param {('gitignore'|'ignoredItems'|'both')} ignoredBy - The source of ignore patterns to use
+ * @param {string[]} ignoredItems - Custom patterns to ignore
+ * @returns {boolean} 
  */
 function shouldIgnore(itemPath, startPath, ignoredBy, ignoredItems) {
-  if (!gitignoreLoaded && (ignoredBy === 'gitignore' || ignoredBy === 'both')) {
-    loadGitignore(ignoredBy, ignoredItems)
+  if (!gitignoreLoaded) {
+    ig = ignore()
+    if (ignoredBy === 'gitignore' || ignoredBy === 'both') {
+      loadGitignore()
+    }
+    if (ignoredBy === 'ignoredItems' || ignoredBy === 'both') {
+      ig.add(ignoredItems)
+    }
+    gitignoreLoaded = true
   }
 
   if (!itemPath) return true
@@ -56,11 +62,7 @@ function shouldIgnore(itemPath, startPath, ignoredBy, ignoredItems) {
   const relativePath = path.relative(startPath, itemPath)
 
   if (relativePath) {
-    if (ignoredBy === 'gitignore' || ignoredBy === 'both') {
-      return ig.ignores(relativePath)
-    } else if (ignoredBy === 'ignoredItems') {
-      return ignoredItems.includes(relativePath)
-    }
+    return ig.ignores(relativePath)
   } else {
     return false
   }
