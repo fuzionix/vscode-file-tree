@@ -3,8 +3,10 @@ const path = require('path')
 const ignore = require('ignore')
 const vscode = require('vscode')
 
+const workspaceFolder = vscode.workspace.workspaceFolders
+const rootPath = workspaceFolder[0].uri.fsPath
+let ignoreLoaded = false
 let ig
-let gitignoreLoaded = false
 
 /**
  * Copies the given text to the system clipboard
@@ -17,22 +19,31 @@ async function copyToClipboard(text) {
   } catch (error) {
     throw new Error(`Failed to copy to clipboard: ${error.message}`)
   }
-  gitignoreLoaded = false
+  ignoreLoaded = false
 }
 
 /**
- * Loads and parses the .gitignore file from the workspace root directory
- * and initializes the ignore patterns
+ * Recursively searches for and loads .gitignore file from current directory up to root
+ * @param {string} currentPath
+ * @returns {string|null} - Content of the first .gitignore found
  */
-function loadGitignore() {
-  const workspaceFolder = vscode.workspace.workspaceFolders
-  const rootPath = workspaceFolder[0].uri.fsPath
-  const gitignorePath = path.join(rootPath, '.gitignore')
+function findNearestGitignore(currentPath) {
+  if (!currentPath || !currentPath.startsWith(rootPath)) return null
+  const gitignorePath = path.join(currentPath, '.gitignore')
   if (fs.existsSync(gitignorePath)) {
-    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8')
+    return fs.readFileSync(gitignorePath, 'utf8')
+  }
+  return findNearestGitignore(path.dirname(currentPath), rootPath)
+}
+
+/**
+ * Loads and parses the nearest .gitignore file
+ * @param {string} itemPath
+ */
+function loadGitignore(itemPath) {
+  const gitignoreContent = findNearestGitignore(itemPath, rootPath)
+  if (gitignoreContent) {
     ig.add(gitignoreContent)
-  } else {
-    throw new Error('Failed to load gitignore')
   }
 }
 
@@ -46,27 +57,26 @@ function loadGitignore() {
  * @returns {boolean} 
  */
 function shouldIgnore(itemPath, startPath, ignoredBy, ignoredItems) {
-  if (!gitignoreLoaded) {
+  if (!ignoreLoaded) {
     ig = ignore()
     if (ignoredBy === 'gitignore' || ignoredBy === 'both') {
-      loadGitignore()
+      loadGitignore(itemPath)
     }
     if (ignoredBy === 'ignoredItems' || ignoredBy === 'both') {
       ig.add(ignoredItems)
     }
-    gitignoreLoaded = true
+    ignoreLoaded = true
   }
 
   if (!itemPath) return true
 
-  const relativePath = path.relative(startPath, itemPath)
+  const relativePath = path.relative(rootPath, itemPath)
 
   if (relativePath) {
     return ig.ignores(relativePath)
   } else {
     return false
   }
-  
 }
 
 /**

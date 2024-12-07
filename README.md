@@ -81,7 +81,7 @@ This setting allows you to specify a list of files and folders that should be ig
 
 **`settings.json`**
 ```json
-"fileTreeExtractor.ignoredItems": [".git", "node_modules", "dist", "src"]
+"fileTreeExtractor.ignoredItems": [".git", "node_modules", "dist", "**/src"]
 ```
 
 ```

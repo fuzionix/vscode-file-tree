@@ -7,14 +7,14 @@ const { copyToClipboard } = require('./utils')
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-	const command = vscode.commands.registerCommand('fileTreeExtractor.copyFileTree', async(uri) => {
+	const command = vscode.commands.registerCommand('fileTreeExtractor.copyFileTree', async (uri) => {
 		let rootPath
 		try {
 			const workspaceFolder = vscode.workspace.workspaceFolders
 			if (!workspaceFolder || workspaceFolder.length === 0) {
 				vscode.window.showErrorMessage('No workspace folder found.')
 				return
-			} 
+			}
 			rootPath = workspaceFolder[0].uri.fsPath
 			const fileTree = await generateFileTree(rootPath)
 			await copyToClipboard(fileTree)
@@ -29,7 +29,7 @@ function activate(context) {
 		}
 	})
 
-	const commandDir = vscode.commands.registerCommand('fileTreeExtractor.copyFileTreeFromThisDir', async(uri) => {
+	const commandDir = vscode.commands.registerCommand('fileTreeExtractor.copyFileTreeFromThisDir', async (uri) => {
 		let targetPath
 		try {
 			if (uri && uri.fsPath) {
@@ -38,12 +38,12 @@ function activate(context) {
 				const workspaceFolder = vscode.workspace.workspaceFolders
 				if (!workspaceFolder || workspaceFolder.length === 0) {
 					vscode.window.showErrorMessage('No workspace folder found.')
-          return
-				} 
+					return
+				}
 				targetPath = workspaceFolder[0].uri.fsPath
 			}
 			const fileTree = await generateFileTree(targetPath)
-      await copyToClipboard(fileTree)
+			await copyToClipboard(fileTree)
 			vscode.window.showInformationMessage('Copied file tree from this directary to clipboard.')
 		} catch (error) {
 			if (error.code === 'EACCES') {
@@ -58,7 +58,7 @@ function activate(context) {
 	context.subscriptions.push(commandDir)
 }
 
-function deactivate() {}
+function deactivate() { }
 
 module.exports = {
 	activate,
