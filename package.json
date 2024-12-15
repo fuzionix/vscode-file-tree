@@ -102,7 +102,9 @@
           "type": "string",
           "enum": [
             "ascii",
-            "json"
+            "json",
+            "yaml",
+            "xml"
           ],
           "default": "ascii",
           "description": "Format of the output tree."
@@ -125,6 +127,8 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "ignore": "^5.3.2"
+    "fast-xml-parser": "^4.5.0",
+    "ignore": "^5.3.2",
+    "js-yaml": "^4.1.0"
   }
 }

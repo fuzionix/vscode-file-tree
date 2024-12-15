@@ -1,5 +1,7 @@
 const fs = require('fs')
 const path = require('path')
+const yaml = require('js-yaml')
+const { XMLBuilder } = require('fast-xml-parser')
 const vscode = require('vscode')
 const { getConfig, shouldIgnore, formatFileSize } = require('./utils')
 
@@ -21,17 +23,34 @@ async function generateFileTree(startPath) {
   const depth = 0
 
   const tree = await buildTree(startPath, startPath, buildConfig, depth)
-  
-  if (buildConfig.outputFormat === 'ascii') {
-    let indentLine = ''
-    let indentSpan = ''
-    for (let i = 0; i < indent; i++) {
-      indentLine += '─'
-      indentSpan += ' '
-    }
-    return formatTree(tree, '', true, depth, indentLine, indentSpan)
-  } else {
-    return JSON.stringify(tree, null, indent)
+
+  switch (buildConfig.outputFormat) {
+    case 'ascii':
+      let indentLine = ''
+      let indentSpan = ''
+      for (let i = 0; i < indent; i++) {
+        indentLine += '─'
+        indentSpan += ' '
+      }
+      return formatTree(tree, '', true, depth, indentLine, indentSpan)
+    case 'json':
+      return JSON.stringify(tree, null, indent)
+    case 'yaml':
+      return yaml.dump(tree, {
+        noRefs: true,
+        lineWidth: -1
+      })
+    case 'xml':
+      const transformedTree = transformTreeForXml(tree)
+      const builder = new XMLBuilder({
+        format: true,
+        indentBy: ' '.repeat(indent),
+        ignoreAttributes: false,
+        suppressBooleanAttributes: false,
+        attributeNamePrefix: '',
+        textNodeName: '#text'
+      })
+      return builder.build(transformedTree)
   }
 }
 
@@ -53,10 +72,10 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
   }
 
   if (stats.isFile()) {
-    return { 
-      name, 
+    return {
+      name,
       type: 'file',
-      size: buildConfig.showFileSize ? formatFileSize(stats.size) : null 
+      size: buildConfig.showFileSize ? formatFileSize(stats.size) : null
     }
   } else if (stats.isDirectory()) {
     try {
@@ -85,11 +104,9 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
  */
 function formatTree(node, prefix = '', isLast = true, depth = 0, indentLine, indentSpan) {
   let result = prefix
-  
   if (prefix !== '' || depth === 1) {
     result += isLast ? `└${indentLine} ` : `├${indentLine} `
   }
-  
   if (node) {
     result += node.name + (node.type === 'directory' ? '/' : '') + `${node.size ? ' (' + node.size + ')' : ''}` + '\n'
     if (node.type === 'directory' && node.children) {
@@ -100,8 +117,42 @@ function formatTree(node, prefix = '', isLast = true, depth = 0, indentLine, ind
       })
     }
   }
-  
   return result
+}
+
+/**
+ * Transforms the tree structure for XML output
+ * @param {Object} node
+ * @returns {Object}
+ */
+function transformTreeForXml(node) {
+  const transformed = {
+    [node.type]: {
+      'name': node.name
+    }
+  }
+
+  if (node.size) {
+    transformed[node.type]['size'] = node.size
+  }
+
+  if (node.children && node.children.length > 0) {
+    node.children.forEach(child => {
+      const childTransformed = transformTreeForXml(child)
+      const childType = Object.keys(childTransformed)[0]
+
+      if (transformed[node.type][childType]) {
+        if (!Array.isArray(transformed[node.type][childType])) {
+          transformed[node.type][childType] = [transformed[node.type][childType]]
+        }
+        transformed[node.type][childType].push(childTransformed[childType])
+      } else {
+        transformed[node.type][childType] = childTransformed[childType]
+      }
+    })
+  }
+
+  return transformed
 }
 
 module.exports = {
