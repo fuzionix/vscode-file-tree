@@ -220,7 +220,7 @@ root/
 The format of the output tree structure.
 
 **Options:**
-`"ascii"` | `"json"`  
+`"ascii"` | `"json"` | `"yaml"` | `"xml"`  
 **Default Value:**
 `"ascii"`
 
