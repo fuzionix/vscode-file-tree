@@ -4,9 +4,13 @@
 
 ---
 
-# File Tree Extractor
+<h1 align="center">
+File Tree Extractor
+</h1>
 
+<p align="center">
 Generate a directory structure with a simple copy and paste.
+</p>
 
 </br>
 <p align="center">
