@@ -3,7 +3,7 @@
   "displayName": "File Tree Extractor",
   "publisher": "Fuzionix",
   "description": "Generate a directory structure for the current project by simply copy and paste",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/fuzionix/vscode-file-tree.git"
@@ -108,6 +108,11 @@
           ],
           "default": "ascii",
           "description": "Format of the output tree."
+        },
+        "fileTreeExtractor.directoryOnly": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show only directories in the tree structure"
         }
       }
     }

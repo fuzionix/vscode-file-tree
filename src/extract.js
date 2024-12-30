@@ -18,6 +18,7 @@ async function generateFileTree(startPath) {
     showFileSize: config.get('showFileSize') || false,
     maxDepth: config.get('maxDepth'),
     outputFormat: config.get('outputFormat') || 'ascii',
+    directoryOnly: config.get('directoryOnly') || false
   }
   const indent = config.get('indent')
   const depth = 0
@@ -68,6 +69,10 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
   const name = path.basename(itemPath)
 
   if (shouldIgnore(itemPath, startPath, buildConfig.ignoredBy, buildConfig.ignoredItems)) {
+    return null
+  }
+
+  if (stats.isFile() && buildConfig.directoryOnly) {
     return null
   }
 
