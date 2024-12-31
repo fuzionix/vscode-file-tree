@@ -2,6 +2,11 @@ const vscode = require('vscode')
 const path = require('path')
 const { generateFileTree } = require('./extract')
 const { copyToClipboard } = require('./utils')
+const {
+	PathNotFoundError,
+	ConfigurationError,
+	TreeExtractorError,
+} = require('./errors')
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -20,12 +25,7 @@ function activate(context) {
 			await copyToClipboard(fileTree)
 			vscode.window.showInformationMessage('Copied file tree to clipboard.')
 		} catch (error) {
-			if (error.code === 'EACCES') {
-				vscode.window.showErrorMessage(`Error copying file tree: Insufficient permissions to access path ${rootPath}.`)
-			} else {
-				vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
-				console.error(error)
-			}
+			handleError(error, rootPath)
 		}
 	})
 
@@ -46,16 +46,30 @@ function activate(context) {
 			await copyToClipboard(fileTree)
 			vscode.window.showInformationMessage('Copied file tree from this directary to clipboard.')
 		} catch (error) {
-			if (error.code === 'EACCES') {
-				vscode.window.showErrorMessage(`Error copying file tree: Insufficient permissions to access path ${targetPath}.`)
-			} else {
-				vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
-				console.error(error)
-			}
+			handleError(error, targetPath)
 		}
 	})
 	context.subscriptions.push(command)
 	context.subscriptions.push(commandDir)
+}
+
+function handleError(error, path) {
+	if (error instanceof TreeExtractorError) {
+		switch (error.code) {
+			case 'INVALID_CONFIG':
+				vscode.window.showErrorMessage(
+					`Invalid configuration: ${error.details.errors.join(', ')}`
+				)
+				break
+			default:
+				vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
+		}
+	} else if (error.code === 'EACCES') {
+		vscode.window.showErrorMessage(`Error copying file tree: Insufficient permissions to access path ${path}.`)
+	} else {
+		vscode.window.showErrorMessage(`Unexpected error: ${error.message}`)
+	}
+	console.error(error)
 }
 
 function deactivate() { }
