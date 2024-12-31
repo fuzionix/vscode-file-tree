@@ -271,19 +271,35 @@ The format of the output tree structure.
 
 </br>
 
+### `fileTreeExtractor.directoryOnly`
+
+**Description:**
+Show only directories in the tree structure, excluding all files from the output.
+
+**Default Value:**
+`false`
+
+**`settings.json`**
+```json
+"fileTreeExtractor.directoryOnly": true
+```
+
+```
+menuy/
+├── asset/
+│   └── icon/
+├── dist/
+└── src/
+```
+
+</br>
+
 ## Commands
 
 - `File Tree Extractor: Copy File Tree`: Copy the file tree of the entire project.
 - `File Tree Extractor: Copy File Tree From This Directory`: Copy the file tree starting from the selected directory.
 - `File Tree Extractor: Report an Issue`: Open the GitHub issue page to report a problem or suggest a feature.
 
-## Keyboard Shortcuts
-
-- `Ctrl+Alt+C`: Copy the file tree of the entire project.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Reporting Issues
 

@@ -2,8 +2,13 @@ const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
 const { XMLBuilder } = require('fast-xml-parser')
-const vscode = require('vscode')
+const config = require('./config')
 const { getConfig, shouldIgnore, formatFileSize } = require('./utils')
+const {
+  TreeExtractorError,
+  PathNotFoundError,
+  ConfigurationError,
+} = require('./errors')
 
 /**
  * Generates a file tree structure starting from the given path
@@ -11,47 +16,57 @@ const { getConfig, shouldIgnore, formatFileSize } = require('./utils')
  * @returns {Promise<string>} A promise that resolves to the file tree as a string
  */
 async function generateFileTree(startPath) {
-  const config = getConfig()
-  const buildConfig = {
-    ignoredBy: config.get('ignoredBy') || 'ignoredItems',
-    ignoredItems: config.get('ignoredItems') || ['node_modules'],
-    showFileSize: config.get('showFileSize') || false,
-    maxDepth: config.get('maxDepth'),
-    outputFormat: config.get('outputFormat') || 'ascii',
-    directoryOnly: config.get('directoryOnly') || false
-  }
-  const indent = config.get('indent')
-  const depth = 0
+  try {
+    const buildConfig = config.getAll()
+    const configErrors = config.validateConfig(buildConfig)
+    if (configErrors.length > 0) {
+      throw new ConfigurationError(configErrors)
+    }
+    const indent = config.get('indent')
+    const depth = 0
 
-  const tree = await buildTree(startPath, startPath, buildConfig, depth)
+    const tree = await buildTree(startPath, startPath, buildConfig, depth)
 
-  switch (buildConfig.outputFormat) {
-    case 'ascii':
-      let indentLine = ''
-      let indentSpan = ''
-      for (let i = 0; i < indent; i++) {
-        indentLine += '─'
-        indentSpan += ' '
-      }
-      return formatTree(tree, '', true, depth, indentLine, indentSpan)
-    case 'json':
-      return JSON.stringify(tree, null, indent)
-    case 'yaml':
-      return yaml.dump(tree, {
-        noRefs: true,
-        lineWidth: -1
-      })
-    case 'xml':
-      const transformedTree = transformTreeForXml(tree)
-      const builder = new XMLBuilder({
-        format: true,
-        indentBy: ' '.repeat(indent),
-        ignoreAttributes: false,
-        suppressBooleanAttributes: false,
-        attributeNamePrefix: '',
-        textNodeName: '#text'
-      })
-      return builder.build(transformedTree)
+    switch (buildConfig.outputFormat) {
+      case 'ascii':
+        let indentLine = ''
+        let indentSpan = ''
+        for (let i = 0; i < indent; i++) {
+          indentLine += '─'
+          indentSpan += ' '
+        }
+        return formatTree(tree, '', true, depth, indentLine, indentSpan)
+      case 'json':
+        return JSON.stringify(tree, null, indent)
+      case 'yaml':
+        return yaml.dump(tree, {
+          noRefs: true,
+          lineWidth: -1
+        })
+      case 'xml':
+        const transformedTree = transformTreeForXml(tree)
+        const builder = new XMLBuilder({
+          format: true,
+          indentBy: ' '.repeat(indent),
+          ignoreAttributes: false,
+          suppressBooleanAttributes: false,
+          attributeNamePrefix: '',
+          textNodeName: '#text'
+        })
+        return builder.build(transformedTree)
+      default:
+        throw new ConfigurationError([`Unsupported output format: ${buildConfig.outputFormat}`])
+    }
+  } catch (error) {
+    if (error instanceof TreeExtractorError) {
+      throw error
+    }
+    throw new TreeExtractorError(
+      'An unexpected error occurred while generating the file tree',
+      'UNKNOWN_ERROR',
+      startPath,
+      { originalError: error.message }
+    )
   }
 }
 
