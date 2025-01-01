@@ -19,12 +19,12 @@ Generate a directory structure with a simple copy and paste.
 
 ## Features
 
-- 📂 **Extract from Any Directory**: Support extracting file tree from the root or any subdirectory.
-- 🔍 **File Filtering**: Automatically filter files based on your project's `.gitignore` or custom ignore rules.
-- 🛠️ **Highly Customizable**: Numerous configuration options to tailor the output.
-- 📝 **Multiple Output Formats**: Generate tree structure in ASCII or JSON format.
-- 💾 **File Size Information**: Optionally include file sizes in the output.
-- ⬇️ **Depth Control**: Set a maximum depth for the generated tree structure.
+- 1️⃣ **Extract from Any Directory**: Support extracting file tree from the root or any subdirectory.
+- 2️⃣ **File Filtering**: Automatically filter files based on your project's `.gitignore` or custom ignore rules.
+- 3️⃣ **Highly Customizable**: Numerous configuration options to tailor the output.
+- 4️⃣ **Multiple Output Formats**: Generate tree structure in ASCII or JSON format.
+- 5️⃣ **File Size Information**: Optionally include file sizes in the output.
+- 6️⃣ **Depth Control**: Set a maximum depth for the generated tree structure.
 
 ## Usage
 
@@ -33,7 +33,7 @@ Generate a directory structure with a simple copy and paste.
 3. The file tree will be copied to your clipboard
 4. Paste the tree wherever you need it
 
-> Alternatively, use the keyboard shortcut `Ctrl+Alt+C` to copy the file tree of the entire project.
+> Alternatively, use the keyboard shortcut `Ctrl`+`Alt`+`C` to copy the file tree of the entire project.
 
 ```
 root/
@@ -296,14 +296,16 @@ menuy/
 
 ## Commands
 
-- `File Tree Extractor: Copy File Tree`: Copy the file tree of the entire project.
-- `File Tree Extractor: Copy File Tree From This Directory`: Copy the file tree starting from the selected directory.
-- `File Tree Extractor: Report an Issue`: Open the GitHub issue page to report a problem or suggest a feature.
+- `File Tree Extractor: Copy File Tree`
+- `File Tree Extractor: Copy File Tree From This Directory`
+- `File Tree Extractor: Report an Issue`
 
 
-## Reporting Issues
+## Feedback & Contributions
 
-If you encounter any problems or have suggestions, please use the "Report an Issue" command in VS Code, or open an issue on [GitHub repository](https://github.com/fuzionix/vscode-file-tree/issues).
+We welcome your feedback and contributions! Please report any issues or suggestions through:
+- The "Report an Issue" command in VS Code
+- Our [GitHub repository](https://github.com/fuzionix/vscode-file-tree/issues)
 
 ## License
 
