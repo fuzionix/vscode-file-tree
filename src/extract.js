@@ -22,41 +22,9 @@ async function generateFileTree(startPath) {
     if (configErrors.length > 0) {
       throw new ConfigurationError(configErrors)
     }
-    const indent = config.get('indent')
     const depth = 0
-
     const tree = await buildTree(startPath, startPath, buildConfig, depth)
-
-    switch (buildConfig.outputFormat) {
-      case 'ascii':
-        let indentLine = ''
-        let indentSpan = ''
-        for (let i = 0; i < indent; i++) {
-          indentLine += '─'
-          indentSpan += ' '
-        }
-        return formatTree(tree, '', true, depth, indentLine, indentSpan)
-      case 'json':
-        return JSON.stringify(tree, null, indent)
-      case 'yaml':
-        return yaml.dump(tree, {
-          noRefs: true,
-          lineWidth: -1
-        })
-      case 'xml':
-        const transformedTree = transformTreeForXml(tree)
-        const builder = new XMLBuilder({
-          format: true,
-          indentBy: ' '.repeat(indent),
-          ignoreAttributes: false,
-          suppressBooleanAttributes: false,
-          attributeNamePrefix: '',
-          textNodeName: '#text'
-        })
-        return builder.build(transformedTree)
-      default:
-        throw new ConfigurationError([`Unsupported output format: ${buildConfig.outputFormat}`])
-    }
+    return formatOutput(tree, buildConfig, depth)
   } catch (error) {
     if (error instanceof TreeExtractorError) {
       throw error
@@ -112,6 +80,37 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
       console.error(`Error reading directory ${itemPath}:`, error)
       return { name, type: 'directory', children: [] }
     }
+  }
+}
+
+function formatOutput(tree, buildConfig, depth = 0) {
+  switch (buildConfig.outputFormat) {
+    case 'ascii':
+      let indentLine = ''
+      let indentSpan = ''
+      for (let i = 0; i < buildConfig.indent; i++) {
+        indentLine += '─'
+        indentSpan += ' '
+      }
+      return formatTree(tree, '', true, depth, indentLine, indentSpan)
+    case 'json':
+      return JSON.stringify(tree, null, buildConfig.indent);
+    case 'yaml':
+      return yaml.dump(tree, {
+        noRefs: true,
+        lineWidth: -1,
+        indent: buildConfig.indent
+      });
+    case 'xml':
+      const builder = new XMLBuilder({
+        format: true,
+        indentBy: ' '.repeat(buildConfig.indent),
+        ignoreAttributes: false,
+        suppressBooleanAttributes: false
+      });
+      return builder.build(transformTreeForXml(tree));
+    default:
+      throw new ConfigurationError([`Unsupported output format: ${buildConfig.outputFormat}`]);
   }
 }
 
