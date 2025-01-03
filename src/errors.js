@@ -8,6 +8,16 @@ class TreeExtractorError extends Error {
     }
 }
 
+class PermissionError extends TreeExtractorError {
+    constructor(path) {
+        super(
+            `Permission denied: Unable to access "${path}"`,
+            'PERMISSION_DENIED',
+            path
+        )
+    }
+}
+
 class PathNotFoundError extends TreeExtractorError {
     constructor(path) {
         super(
@@ -31,6 +41,7 @@ class ConfigurationError extends TreeExtractorError {
 
 module.exports = {
     TreeExtractorError,
+    PermissionError,
     PathNotFoundError,
     ConfigurationError,
 }

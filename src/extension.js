@@ -56,6 +56,12 @@ function activate(context) {
 function handleError(error, path) {
 	if (error instanceof TreeExtractorError) {
 		switch (error.code) {
+			case 'PERMISSION_DENIED':
+                vscode.window.showErrorMessage(`Permission denied: Unable to access "${error.path}"`)
+                break
+            case 'PATH_NOT_FOUND':
+                vscode.window.showErrorMessage(`Path not found: "${error.path}" does not exist`)
+                break
 			case 'INVALID_CONFIG':
 				vscode.window.showErrorMessage(
 					`Invalid configuration: ${error.details.errors.join(', ')}`
@@ -64,8 +70,6 @@ function handleError(error, path) {
 			default:
 				vscode.window.showErrorMessage(`Error copying file tree: ${error.message}`)
 		}
-	} else if (error.code === 'EACCES') {
-		vscode.window.showErrorMessage(`Error copying file tree: Insufficient permissions to access path ${path}.`)
 	} else {
 		vscode.window.showErrorMessage(`Unexpected error: ${error.message}`)
 	}

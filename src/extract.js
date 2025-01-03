@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs').promises
 const path = require('path')
 const yaml = require('js-yaml')
 const { XMLBuilder } = require('fast-xml-parser')
@@ -6,6 +6,7 @@ const config = require('./config')
 const { getConfig, shouldIgnore, formatFileSize } = require('./utils')
 const {
   TreeExtractorError,
+  PermissionError,
   PathNotFoundError,
   ConfigurationError,
 } = require('./errors')
@@ -17,11 +18,25 @@ const {
  */
 async function generateFileTree(startPath) {
   try {
+    // Validate configuration
     const buildConfig = config.getAll()
     const configErrors = config.validateConfig(buildConfig)
     if (configErrors.length > 0) {
       throw new ConfigurationError(configErrors)
     }
+    
+    // Validate start path
+    try {
+      await fs.access(startPath, fs.constants.R_OK)
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new PathNotFoundError(startPath)
+      } else if (error.code === 'EACCES') {
+        throw new PermissionError(startPath)
+      }
+      throw error
+    }
+    
     const depth = 0
     const tree = await buildTree(startPath, startPath, buildConfig, depth)
     return formatOutput(tree, buildConfig, depth)
@@ -29,6 +44,7 @@ async function generateFileTree(startPath) {
     if (error instanceof TreeExtractorError) {
       throw error
     }
+    
     throw new TreeExtractorError(
       'An unexpected error occurred while generating the file tree',
       'UNKNOWN_ERROR',
@@ -48,7 +64,7 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
     return null
   }
 
-  const stats = await fs.promises.stat(itemPath)
+  const stats = await fs.stat(itemPath)
   const name = path.basename(itemPath)
 
   if (shouldIgnore(itemPath, startPath, buildConfig.ignoredBy, buildConfig.ignoredItems)) {
@@ -67,7 +83,7 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
     }
   } else if (stats.isDirectory()) {
     try {
-      const children = await fs.promises.readdir(itemPath)
+      const children = await fs.readdir(itemPath)
       const childNodes = await Promise.all(
         children.map(child => buildTree(path.join(itemPath, child), startPath, buildConfig, depth + 1))
       )
