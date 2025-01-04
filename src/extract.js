@@ -64,12 +64,18 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
     return null
   }
 
-  const stats = await fs.stat(itemPath)
-  const name = path.basename(itemPath)
-
   if (shouldIgnore(itemPath, startPath, buildConfig.ignoredBy, buildConfig.ignoredItems)) {
     return null
   }
+
+  let stats
+  try {
+    stats = await fs.stat(itemPath)
+  } catch (error) {
+    console.warn(`Warning: Skipping "${itemPath}" due to error:`, error.message)
+    return null
+  }
+  const name = path.basename(itemPath)
 
   if (stats.isFile() && buildConfig.directoryOnly) {
     return null
@@ -93,7 +99,7 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
         children: childNodes.filter(node => node !== null)
       }
     } catch (error) {
-      console.error(`Error reading directory ${itemPath}:`, error)
+      console.warn(`Warning: Cannot read directory "${itemPath}":`, error.message)
       return { name, type: 'directory', children: [] }
     }
   }
