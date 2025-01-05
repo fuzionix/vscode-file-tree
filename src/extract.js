@@ -24,7 +24,7 @@ async function generateFileTree(startPath) {
     if (configErrors.length > 0) {
       throw new ConfigurationError(configErrors)
     }
-    
+
     // Validate start path
     try {
       await fs.access(startPath, fs.constants.R_OK)
@@ -36,7 +36,7 @@ async function generateFileTree(startPath) {
       }
       throw error
     }
-    
+
     const depth = 0
     const tree = await buildTree(startPath, startPath, buildConfig, depth)
     return formatOutput(tree, buildConfig, depth)
@@ -44,7 +44,7 @@ async function generateFileTree(startPath) {
     if (error instanceof TreeExtractorError) {
       throw error
     }
-    
+
     throw new TreeExtractorError(
       'An unexpected error occurred while generating the file tree',
       'UNKNOWN_ERROR',
@@ -61,6 +61,10 @@ async function generateFileTree(startPath) {
  */
 async function buildTree(itemPath, startPath, buildConfig, depth) {
   if (buildConfig.maxDepth !== -1 && depth >= buildConfig.maxDepth) {
+    return null
+  }
+
+  if (!buildConfig.showHiddenFiles && isHiddenFile(itemPath)) {
     return null
   }
 
@@ -194,6 +198,11 @@ function transformTreeForXml(node) {
   }
 
   return transformed
+}
+
+function isHiddenFile(filePath) {
+  const basename = path.basename(filePath)
+  return basename.startsWith('.')
 }
 
 module.exports = {

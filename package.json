@@ -93,6 +93,11 @@
           "default": false,
           "description": "Include file sizes in the generated tree."
         },
+        "fileTreeExtractor.showHiddenFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show hidden files (files starting with a dot) in the tree output."
+        },
         "fileTreeExtractor.maxDepth": {
           "type": "number",
           "default": -1,

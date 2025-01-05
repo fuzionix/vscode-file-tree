@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="media/SocialPreview.png" alt="File Tree Extractor Logo" width="640" />
+  <img src="media/FileTreeLogo.png" alt="File Tree Extractor Logo" width="90" />
 </p>
 
 ---
@@ -271,7 +271,7 @@ The format of the output tree structure.
 
 </br>
 
-### `fileTreeExtractor.directoryOnly`
+### `fileTreeExtractor.directoryOnly` 🆕
 
 **Description:**
 Show only directories in the tree structure, excluding all files from the output.
@@ -291,6 +291,18 @@ menuy/
 ├── dist/
 └── src/
 ```
+
+</br>
+
+### `fileTreeExtractor.showHiddenFiles` 🆕
+
+**Description:**
+Show hidden files in the tree output.
+
+**Default Value:**
+`true`
+
+> Notice: The option only works for Linux and Mac OS. 
 
 </br>
 

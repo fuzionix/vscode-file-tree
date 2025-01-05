@@ -15,6 +15,7 @@ class ConfigurationManager {
             ignoredBy: 'ignoredItems',
             indent: 1,
             showFileSize: false,
+            showHiddenFiles: true,
             maxDepth: -1,
             outputFormat: 'ascii',
             directoryOnly: false
@@ -38,6 +39,10 @@ class ConfigurationManager {
 
         if (typeof config.showFileSize !== 'boolean') {
             errors.push('"showFileSize" must be a boolean')
+        }
+
+        if (typeof config.showHiddenFiles !== 'boolean') {
+            errors.push('"showHiddenFiles" must be a boolean value')
         }
 
         if (typeof config.maxDepth !== 'number' || config.maxDepth < -1) {
