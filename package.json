@@ -69,7 +69,10 @@
           "type": "array",
           "default": [
             ".git",
-            "node_modules"
+            "node_modules",
+            "*.log",
+            ".DS_Store",
+            "tmp"
           ],
           "description": "List of files and folders to ignore when generating the file tree."
         },
@@ -92,6 +95,11 @@
           "type": "boolean",
           "default": false,
           "description": "Include file sizes in the generated tree."
+        },
+        "fileTreeExtractor.showHiddenFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show hidden files (files starting with a dot) in the tree output."
         },
         "fileTreeExtractor.maxDepth": {
           "type": "number",
