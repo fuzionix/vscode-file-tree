@@ -69,7 +69,10 @@
           "type": "array",
           "default": [
             ".git",
-            "node_modules"
+            "node_modules",
+            "*.log",
+            ".DS_Store",
+            "tmp"
           ],
           "description": "List of files and folders to ignore when generating the file tree."
         },

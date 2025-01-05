@@ -11,7 +11,7 @@ class ConfigurationManager {
 
     get defaultConfig() {
         return {
-            ignoredItems: ['node_modules', '.git'],
+            ignoredItems: ['node_modules', '.git', '*.log', '.DS_Store', 'tmp'],
             ignoredBy: 'ignoredItems',
             indent: 1,
             showFileSize: false,
