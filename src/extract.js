@@ -11,6 +11,12 @@ const {
   ConfigurationError,
 } = require('./errors')
 
+const FILE_ICONS = {
+  ROOT: '📦',
+  DIRECTORY: '📂',
+  FILE: '📄'
+}
+
 /**
  * Generates a file tree structure starting from the given path
  * @param {string} startPath - The root path to start generating the tree from
@@ -39,6 +45,9 @@ async function generateFileTree(startPath) {
 
     const depth = 0
     const tree = await buildTree(startPath, startPath, buildConfig, depth)
+    if (tree) {
+      tree.isRoot = true
+    }
     return formatOutput(tree, buildConfig, depth)
   } catch (error) {
     if (error instanceof TreeExtractorError) {
@@ -122,14 +131,14 @@ function sortNodes(nodes, sortOrder) {
     return nodes.sort((a, b) => {
       // If types are different, directories come first
       if (a.type !== b.type) {
-        return a.type === 'directory' ? -1 : 1;
+        return a.type === 'directory' ? -1 : 1
       }
 
       // If types are same, sort alphabetically by name
-      return a.name.localeCompare(b.name);
-    });
+      return a.name.localeCompare(b.name)
+    })
   } else {
-    return nodes.sort((a, b) => a.name.localeCompare(b.name));
+    return nodes.sort((a, b) => a.name.localeCompare(b.name))
   }
 }
 
@@ -142,25 +151,25 @@ function formatOutput(tree, buildConfig, depth = 0) {
         indentLine += '─'
         indentSpan += ' '
       }
-      return formatTree(tree, '', true, depth, indentLine, indentSpan)
+      return formatTree(tree, '', true, depth, indentLine, indentSpan, buildConfig.useFileIcons)
     case 'json':
-      return JSON.stringify(tree, null, buildConfig.indent);
+      return JSON.stringify(tree, null, buildConfig.indent)
     case 'yaml':
       return yaml.dump(tree, {
         noRefs: true,
         lineWidth: -1,
-        indent: buildConfig.indent
-      });
+        indent: 2
+      })
     case 'xml':
       const builder = new XMLBuilder({
         format: true,
         indentBy: ' '.repeat(buildConfig.indent),
         ignoreAttributes: false,
         suppressBooleanAttributes: false
-      });
-      return builder.build(transformTreeForXml(tree));
+      })
+      return builder.build(transformTreeForXml(tree))
     default:
-      throw new ConfigurationError([`Unsupported output format: ${buildConfig.outputFormat}`]);
+      throw new ConfigurationError([`Unsupported output format: ${buildConfig.outputFormat}`])
   }
 }
 
@@ -171,18 +180,29 @@ function formatOutput(tree, buildConfig, depth = 0) {
  * @param {boolean} isLast - Whether this is the last item in its parent
  * @returns {string} The formatted tree string
  */
-function formatTree(node, prefix = '', isLast = true, depth = 0, indentLine, indentSpan) {
+function formatTree(node, prefix = '', isLast = true, depth = 0, indentLine, indentSpan, useFileIcons = false) {
   let result = prefix
   if (prefix !== '' || depth === 1) {
     result += isLast ? `└${indentLine} ` : `├${indentLine} `
   }
   if (node) {
-    result += node.name + (node.type === 'directory' ? '/' : '') + `${node.size ? ' (' + node.size + ')' : ''}` + '\n'
+    let iconPrefix = ''
+    if (useFileIcons) {
+      if (node.isRoot) {
+        iconPrefix = `${FILE_ICONS.ROOT} `
+      } else if (node.type === 'directory') {
+        iconPrefix = `${FILE_ICONS.DIRECTORY} `
+      } else {
+        iconPrefix = `${FILE_ICONS.FILE} `
+      }
+    }
+
+    result += iconPrefix + node.name + (node.type === 'directory' ? '/' : '') + `${node.size ? ' (' + node.size + ')' : ''}` + '\n'
     if (node.type === 'directory' && node.children) {
       const childPrefix = prefix + (depth ? (isLast ? `  ${indentSpan}` : `│ ${indentSpan}`) : '')
       node.children.forEach((child, index) => {
         const isLastChild = index === node.children.length - 1
-        result += formatTree(child, childPrefix, isLastChild, depth + 1, indentLine, indentSpan)
+        result += formatTree(child, childPrefix, isLastChild, depth + 1, indentLine, indentSpan, useFileIcons)
       })
     }
   }

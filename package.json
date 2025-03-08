@@ -88,7 +88,10 @@
         },
         "fileTreeExtractor.sortOrder": {
           "type": "string",
-          "enum": ["alphabetical", "type"],
+          "enum": [
+            "alphabetical",
+            "type"
+          ],
           "default": "type",
           "description": "How to sort files and directories in the tree."
         },
@@ -96,6 +99,11 @@
           "type": "number",
           "default": 1,
           "description": "Indent space for each level in the generated tree."
+        },
+        "fileTreeExtractor.useFileIcons": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use custom icons for different file types in the output"
         },
         "fileTreeExtractor.showFileSize": {
           "type": "boolean",

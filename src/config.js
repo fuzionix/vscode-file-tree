@@ -15,6 +15,7 @@ class ConfigurationManager {
             ignoredBy: 'ignoredItems',
             sortOrder: 'type',
             indent: 1,
+            useFileIcons: false,
             showFileSize: false,
             showHiddenFiles: true,
             maxDepth: -1,
@@ -40,6 +41,10 @@ class ConfigurationManager {
 
         if (typeof config.indent !== 'number' || config.indent < 0) {
             errors.push('"indent" must be a positive number')
+        }
+
+        if (typeof config.useFileIcons !== 'boolean') {
+            errors.push('"useFileIcons" must be a boolean')
         }
 
         if (typeof config.showFileSize !== 'boolean') {
