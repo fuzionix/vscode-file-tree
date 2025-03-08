@@ -13,6 +13,7 @@ class ConfigurationManager {
         return {
             ignoredItems: ['node_modules', '.git', '*.log', '.DS_Store', 'tmp'],
             ignoredBy: 'ignoredItems',
+            sortOrder: 'type',
             indent: 1,
             showFileSize: false,
             showHiddenFiles: true,
@@ -31,6 +32,10 @@ class ConfigurationManager {
 
         if (!['gitignore', 'ignoredItems', 'both'].includes(config.ignoredBy)) {
             errors.push('Invalid option at "ignoredBy"')
+        }
+
+        if (!['alphabetical', 'type'].includes(config.sortOrder)) {
+            errors.push('Invalid option at "sortOrder"')
         }
 
         if (typeof config.indent !== 'number' || config.indent < 0) {

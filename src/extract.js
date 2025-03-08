@@ -97,15 +97,39 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
       const childNodes = await Promise.all(
         children.map(child => buildTree(path.join(itemPath, child), startPath, buildConfig, depth + 1))
       )
+      const filteredNodes = childNodes.filter(node => node !== null)
+      const sortedNodes = sortNodes(filteredNodes, buildConfig.sortOrder)
       return {
         name,
         type: 'directory',
-        children: childNodes.filter(node => node !== null)
+        children: sortedNodes
       }
     } catch (error) {
       console.warn(`Warning: Cannot read directory "${itemPath}":`, error.message)
       return { name, type: 'directory', children: [] }
     }
+  }
+}
+
+/**
+ * Sorts the nodes based on the specified sort order
+ * @param {Array} nodes - Array of node objects
+ * @param {string} sortOrder - The sort order ('alphabetical' or 'type')
+ * @returns {Array} - Sorted array of nodes
+ */
+function sortNodes(nodes, sortOrder) {
+  if (sortOrder === 'type') {
+    return nodes.sort((a, b) => {
+      // If types are different, directories come first
+      if (a.type !== b.type) {
+        return a.type === 'directory' ? -1 : 1;
+      }
+
+      // If types are same, sort alphabetically by name
+      return a.name.localeCompare(b.name);
+    });
+  } else {
+    return nodes.sort((a, b) => a.name.localeCompare(b.name));
   }
 }
 
