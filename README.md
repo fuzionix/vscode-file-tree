@@ -126,6 +126,58 @@ Specifies the method to ignore files and folders when generating the file tree s
 
 </br>
 
+### `fileTreeExtractor.sortOrder` 🆕
+
+**Description:**
+Specifies how files and directories should be sorted in the tree structure.
+
+**Options:**
+`"type"` | `"alphabetical"`  
+**Default Value:**
+`"type"`
+
+**`settings.json`**
+```json
+"fileTreeExtractor.sortOrder": "type"
+```
+
+```
+### alphabetical ###
+root/
+├── .env
+├── .gitignore
+├── asset/
+│   ├── icon/
+│   │   └── icon.png
+│   ├── logo.svg
+│   └── logo_text.svg
+├── package-lock.json
+├── package.json
+├── README.md
+└── rollup.config.js
+
+---------------------
+
+### type ###
+root/
+├── asset/
+│   ├── icon/
+│   │   └── icon.png
+│   ├── logo.svg
+│   └── logo_text.svg
+├── .env
+├── .gitignore
+├── package-lock.json
+├── package.json
+├── README.md
+└── rollup.config.js
+```
+
+- `"type"`: Directories are sorted first, followed by files, with alphabetical sorting within each group.
+- `"alphabetical"`: Items are sorted alphabetically, regardless of whether they are files or directories.
+
+</br>
+
 ### `fileTreeExtractor.indent`
 
 **Description:**
@@ -152,6 +204,38 @@ root/
 ├──── package.json
 ├──── README.md
 └──── rollup.config.js
+```
+
+</br>
+
+### `fileTreeExtractor.useFileIcons`
+
+**Description:**
+Use emoji icons to visually distinguish between different item types in the tree structure.
+
+**Options:**
+`"true"` | `"false"`  
+**Default Value:**
+`"false"`
+
+**`settings.json`**
+```json
+"fileTreeExtractor.useFileIcons": true
+```
+
+```
+📦 root/
+├─ 📂 asset/
+│  ├─ 📂 icon/
+│  │  └─ 📄 icon.png
+│  ├─ 📄 logo.svg
+│  └─ 📄 logo_text.svg
+├─ 📄 .env
+├─ 📄 .gitignore
+├─ 📄 package-lock.json
+├─ 📄 package.json
+├─ 📄 README.md
+└─ 📄 rollup.config.js
 ```
 
 </br>
@@ -271,7 +355,7 @@ The format of the output tree structure.
 
 </br>
 
-### `fileTreeExtractor.directoryOnly` 🆕
+### `fileTreeExtractor.directoryOnly`
 
 **Description:**
 Show only directories in the tree structure, excluding all files from the output.
@@ -294,7 +378,7 @@ menuy/
 
 </br>
 
-### `fileTreeExtractor.showHiddenFiles` 🆕
+### `fileTreeExtractor.showHiddenFiles`
 
 **Description:**
 Show hidden files in the tree output.
