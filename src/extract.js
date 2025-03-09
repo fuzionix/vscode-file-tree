@@ -14,7 +14,8 @@ const {
 const FILE_ICONS = {
   ROOT: '📦',
   DIRECTORY: '📂',
-  FILE: '📄'
+  FILE: '📄',
+  SYMLINK: '🔗'
 }
 
 /**
@@ -66,12 +67,27 @@ async function generateFileTree(startPath) {
 /**
  * Recursively builds a tree structure of the file system
  * @param {string} itemPath - The path of the current item (file or directory)
+ * @param {string} startPath - The original starting path
+ * @param {Object} buildConfig - Configuration options
+ * @param {number} depth - Current depth in the tree
+ * @param {Set} [visitedPaths] - Set of already visited paths to detect loops
  * @returns {Promise<Object>} A promise that resolves to an object representing the tree
  */
-async function buildTree(itemPath, startPath, buildConfig, depth) {
+async function buildTree(itemPath, startPath, buildConfig, depth, visitedPaths = new Set()) {
   if (buildConfig.maxDepth !== -1 && depth >= buildConfig.maxDepth) {
     return null
   }
+
+  const normalizedPath = path.resolve(itemPath)
+  if (visitedPaths.has(normalizedPath)) {
+    return {
+      name: path.basename(itemPath) + ' (symlink loop)',
+      type: 'symlink',
+      target: normalizedPath
+    }
+  }
+
+  visitedPaths.add(normalizedPath)
 
   if (!buildConfig.showHiddenFiles && isHiddenFile(itemPath)) {
     return null
@@ -81,14 +97,34 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
     return null
   }
 
-  let stats
+  let stats, lstat
   try {
     stats = await fs.stat(itemPath)
+    lstat = await fs.lstat(itemPath)
   } catch (error) {
     console.warn(`Warning: Skipping "${itemPath}" due to error:`, error.message)
     return null
   }
   const name = path.basename(itemPath)
+  const isSymlink = lstat.isSymbolicLink()
+
+  if (isSymlink) {
+    try {
+      const target = await fs.readlink(itemPath)
+      return {
+        name,
+        type: 'symlink',
+        target,
+        size: buildConfig.showFileSize ? formatFileSize(lstat.size) : null
+      }
+    } catch (error) {
+      return {
+        name: name + ' (broken symlink)',
+        type: 'symlink',
+        target: 'unknown'
+      }
+    }
+  }
 
   if (stats.isFile() && buildConfig.directoryOnly) {
     return null
@@ -104,7 +140,7 @@ async function buildTree(itemPath, startPath, buildConfig, depth) {
     try {
       const children = await fs.readdir(itemPath)
       const childNodes = await Promise.all(
-        children.map(child => buildTree(path.join(itemPath, child), startPath, buildConfig, depth + 1))
+        children.map(child => buildTree(path.join(itemPath, child), startPath, buildConfig, depth + 1, new Set(visitedPaths)))
       )
       const filteredNodes = childNodes.filter(node => node !== null)
       const sortedNodes = sortNodes(filteredNodes, buildConfig.sortOrder)
