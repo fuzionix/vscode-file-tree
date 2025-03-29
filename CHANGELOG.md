@@ -1,3 +1,14 @@
+## [1.3.0] - 2025-03-29
+
+### ✨ Features
+- Added `useFileIcons` option to display emoji icons (📦, 📂, 📄) before each item in the tree structure
+- Implemented `sortOrder` option to sort items either alphabetically or by type (folders first, then files)
+
+### 🐛 Bug Fixes
+- Fixed handling of symbolic links in the file tree generation
+
+[1.3.0]: https://github.com/fuzionix/vscode-file-tree/compare/1.2.0...1.3.0
+
 ## [1.2.0] - 2025-01-05
 
 ### ✨ Features
