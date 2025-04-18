@@ -3,7 +3,7 @@ const path = require('path')
 const yaml = require('js-yaml')
 const { XMLBuilder } = require('fast-xml-parser')
 const config = require('./config')
-const { getConfig, shouldIgnore, formatFileSize } = require('./utils')
+const { getConfig, shouldIgnore, formatFileSize, clearIgnoreCache } = require('./utils')
 const {
   TreeExtractorError,
   PermissionError,
@@ -25,6 +25,8 @@ const FILE_ICONS = {
  */
 async function generateFileTree(startPath) {
   try {
+    clearIgnoreCache()
+    
     // Validate configuration
     const buildConfig = config.getAll()
     const configErrors = config.validateConfig(buildConfig)

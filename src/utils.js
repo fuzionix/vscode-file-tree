@@ -3,10 +3,134 @@ const path = require('path')
 const ignore = require('ignore')
 const vscode = require('vscode')
 
-const workspaceFolder = vscode.workspace.workspaceFolders
-const rootPath = workspaceFolder[0].uri.fsPath
-let ignoreLoaded = false
-let ig
+// Cache for ignore rules by directory
+const ignoreRulesCache = new Map()
+
+/**
+ * Determines whether a given path should be ignored based on gitignore rules
+ * and/or custom ignore patterns
+ * @param {string} itemPath - Path to check
+ * @param {string} startPath - Starting directory for the tree generation
+ * @param {('gitignore'|'ignoredItems'|'both')} ignoredBy - The source of ignore patterns to use
+ * @param {string[]} ignoredItems - Custom patterns to ignore
+ * @returns {boolean} 
+ */
+function shouldIgnore(itemPath, startPath, ignoredBy, ignoredItems) {
+  if (!itemPath) return true
+  
+  if (ignoredBy === 'ignoredItems') {
+    const ig = ignore().add(ignoredItems)
+    const relativePath = path.relative(startPath, itemPath)
+    return relativePath ? ig.ignores(relativePath) : false
+  }
+  
+  const customPatterns = ignoredBy === 'both' ? ignoredItems : []
+  
+  // Find the closest parent directory that contains the itemPath
+  let currentDir = itemPath
+  if (!fs.statSync(itemPath).isDirectory()) {
+    currentDir = path.dirname(itemPath)
+  }
+  
+  // Check if the path should be ignored according to applicable rules
+  const rules = getAppropriateIgnoreRules(itemPath, startPath, customPatterns)
+  const relativePath = path.relative(startPath, itemPath)
+  
+  return relativePath ? rules.ignores(relativePath) : false
+}
+
+/**
+ * Get correct ignore rules for an item path
+ * @param {string} itemPath - Path to check
+ * @param {string} startPath - Starting directory for the tree generation
+ * @param {string[]} customIgnorePatterns - Custom patterns to ignore
+ * @returns {ignore.Ignore} - Ignore instance with appropriate rules
+ */
+function getAppropriateIgnoreRules(itemPath, startPath, customIgnorePatterns = []) {
+  const itemDir = fs.statSync(itemPath).isDirectory() 
+    ? itemPath 
+    : path.dirname(itemPath)
+  
+  const ig = getIgnoreRules(itemDir, startPath)
+  
+  if (customIgnorePatterns && customIgnorePatterns.length > 0) {
+    ig.add(customIgnorePatterns)
+  }
+  
+  return ig
+}
+
+/**
+ * Gets ignore rules for a specific directory
+ * @param {string} dirPath - Directory path
+ * @param {string} rootPath - Root directory path
+ * @returns {ignore.Ignore} - Ignore instance with rules for this directory
+ */
+function getIgnoreRules(dirPath, rootPath) {
+  if (ignoreRulesCache.has(dirPath)) {
+    return ignoreRulesCache.get(dirPath)
+  }
+  
+  const ig = ignore()
+  const gitignoreFiles = getGitignoreFiles(dirPath, rootPath)
+  
+  for (const [dirPath, content] of gitignoreFiles.entries()) {
+    ig.add(content)
+  }
+  
+  ignoreRulesCache.set(dirPath, ig)
+  return ig
+}
+
+/**
+ * Gets all .gitignore files from a path up to the root
+ * @param {string} itemPath - Path to start from
+ * @param {string} rootPath - Root directory path
+ * @returns {Map<string, string>} - Map of directory paths to gitignore contents
+ */
+function getGitignoreFiles(itemPath, rootPath) {
+  const gitignoreFiles = new Map()
+  let currentPath = itemPath
+  
+  while (currentPath && currentPath.startsWith(rootPath)) {
+    const gitignoreContent = readGitignoreFile(currentPath)
+    if (gitignoreContent) {
+      gitignoreFiles.set(currentPath, gitignoreContent)
+    }
+    
+    // Move to parent directory
+    const parentPath = path.dirname(currentPath)
+    if (parentPath === currentPath) break
+    currentPath = parentPath
+  }
+  
+  return gitignoreFiles
+}
+
+/**
+ * Reads a .gitignore file if it exists
+ * @param {string} dirPath - Directory path to check for .gitignore
+ * @returns {string|null} - Content of .gitignore or null if not found
+ */
+function readGitignoreFile(dirPath) {
+  const gitignorePath = path.join(dirPath, '.gitignore')
+  if (fs.existsSync(gitignorePath)) {
+    try {
+      return fs.readFileSync(gitignorePath, 'utf8')
+    } catch (error) {
+      console.warn(`Failed to read ${gitignorePath}: ${error.message}`)
+      return null
+    }
+  }
+  return null
+}
+
+/**
+ * Clears the ignore rules cache to ensure fresh rules are loaded
+ */
+function clearIgnoreCache() {
+  ignoreRulesCache.clear()
+}
 
 /**
  * Copies the given text to the system clipboard
@@ -18,64 +142,6 @@ async function copyToClipboard(text) {
     await vscode.env.clipboard.writeText(text)
   } catch (error) {
     throw new Error(`Failed to copy to clipboard: ${error.message}`)
-  }
-  ignoreLoaded = false
-}
-
-/**
- * Recursively searches for and loads .gitignore file from current directory up to root
- * @param {string} currentPath
- * @returns {string|null} - Content of the first .gitignore found
- */
-function findNearestGitignore(currentPath) {
-  if (!currentPath || !currentPath.startsWith(rootPath)) return null
-  const gitignorePath = path.join(currentPath, '.gitignore')
-  if (fs.existsSync(gitignorePath)) {
-    return fs.readFileSync(gitignorePath, 'utf8')
-  }
-  return findNearestGitignore(path.dirname(currentPath), rootPath)
-}
-
-/**
- * Loads and parses the nearest .gitignore file
- * @param {string} itemPath
- */
-function loadGitignore(itemPath) {
-  const gitignoreContent = findNearestGitignore(itemPath, rootPath)
-  if (gitignoreContent) {
-    ig.add(gitignoreContent)
-  }
-}
-
-/**
- * Determines whether a given path should be ignored based on gitignore rules
- * and/or custom ignore patterns
- * @param {string} itemPath
- * @param {string} startPath
- * @param {('gitignore'|'ignoredItems'|'both')} ignoredBy - The source of ignore patterns to use
- * @param {string[]} ignoredItems - Custom patterns to ignore
- * @returns {boolean} 
- */
-function shouldIgnore(itemPath, startPath, ignoredBy, ignoredItems) {
-  if (!ignoreLoaded) {
-    ig = ignore()
-    if (ignoredBy === 'gitignore' || ignoredBy === 'both') {
-      loadGitignore(itemPath)
-    }
-    if (ignoredBy === 'ignoredItems' || ignoredBy === 'both') {
-      ig.add(ignoredItems)
-    }
-    ignoreLoaded = true
-  }
-
-  if (!itemPath) return true
-
-  const relativePath = path.relative(rootPath, itemPath)
-
-  if (relativePath) {
-    return ig.ignores(relativePath)
-  } else {
-    return false
   }
 }
 
@@ -98,9 +164,14 @@ function getConfig() {
   return vscode.workspace.getConfiguration('fileTreeExtractor')
 }
 
+vscode.workspace.onDidChangeWorkspaceFolders(() => {
+  clearIgnoreCache()
+})
+
 module.exports = {
   copyToClipboard,
   shouldIgnore,
   formatFileSize,
-  getConfig
+  clearIgnoreCache,
+  getConfig,
 }
