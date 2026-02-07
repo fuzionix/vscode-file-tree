@@ -5,6 +5,35 @@ const vscode = require('vscode')
 
 // Cache for ignore rules by directory
 const ignoreRulesCache = new Map()
+const gitRootCache = new Map()
+
+/**
+ * Finds the Git repository root starting from a given directory
+ * @param {string} startPath - Directory to start searching from
+ * @returns {string|null} - Git repository root path or null if not found
+ */
+function findGitRoot(startPath) {
+  if (gitRootCache.has(startPath)) {
+    return gitRootCache.get(startPath)
+  }
+
+  let currentPath = startPath
+  
+  while (currentPath) {
+    const gitPath = path.join(currentPath, '.git')
+    if (fs.existsSync(gitPath)) {
+      gitRootCache.set(startPath, currentPath)
+      return currentPath
+    }
+    
+    const parentPath = path.dirname(currentPath)
+    if (parentPath === currentPath) break
+    currentPath = parentPath
+  }
+  
+  gitRootCache.set(startPath, null)
+  return null
+}
 
 /**
  * Determines whether a given path should be ignored based on gitignore rules
@@ -28,13 +57,21 @@ function shouldIgnore(itemPath, startPath, ignoredBy, ignoredItems) {
   
   // Find the closest parent directory that contains the itemPath
   let currentDir = itemPath
-  if (!fs.statSync(itemPath).isDirectory()) {
-    currentDir = path.dirname(itemPath)
+  try {
+    if (!fs.statSync(itemPath).isDirectory()) {
+      currentDir = path.dirname(itemPath)
+    }
+  } catch (error) {
+    return true
   }
   
   // Check if the path should be ignored according to applicable rules
   const rules = getAppropriateIgnoreRules(itemPath, startPath, customPatterns)
-  const relativePath = path.relative(startPath, itemPath)
+  const gitRoot = findGitRoot(startPath)
+  
+  // Calculate relative path from git root if available, otherwise from startPath
+  const basePath = gitRoot || startPath
+  const relativePath = path.relative(basePath, itemPath)
   
   return relativePath ? rules.ignores(relativePath) : false
 }
@@ -47,9 +84,14 @@ function shouldIgnore(itemPath, startPath, ignoredBy, ignoredItems) {
  * @returns {ignore.Ignore} - Ignore instance with appropriate rules
  */
 function getAppropriateIgnoreRules(itemPath, startPath, customIgnorePatterns = []) {
-  const itemDir = fs.statSync(itemPath).isDirectory() 
-    ? itemPath 
-    : path.dirname(itemPath)
+  let itemDir
+  try {
+    itemDir = fs.statSync(itemPath).isDirectory() 
+      ? itemPath 
+      : path.dirname(itemPath)
+  } catch (error) {
+    itemDir = path.dirname(itemPath)
+  }
   
   const ig = getIgnoreRules(itemDir, startPath)
   
@@ -63,45 +105,62 @@ function getAppropriateIgnoreRules(itemPath, startPath, customIgnorePatterns = [
 /**
  * Gets ignore rules for a specific directory
  * @param {string} dirPath - Directory path
- * @param {string} rootPath - Root directory path
+ * @param {string} startPath - Starting directory for tree generation
  * @returns {ignore.Ignore} - Ignore instance with rules for this directory
  */
-function getIgnoreRules(dirPath, rootPath) {
-  if (ignoreRulesCache.has(dirPath)) {
-    return ignoreRulesCache.get(dirPath)
+function getIgnoreRules(dirPath, startPath) {
+  const cacheKey = `${dirPath}:${startPath}`
+  if (ignoreRulesCache.has(cacheKey)) {
+    return ignoreRulesCache.get(cacheKey)
   }
   
   const ig = ignore()
-  const gitignoreFiles = getGitignoreFiles(dirPath, rootPath)
+  const gitignoreFiles = getGitignoreFiles(dirPath, startPath)
   
   for (const [dirPath, content] of gitignoreFiles.entries()) {
     ig.add(content)
   }
   
-  ignoreRulesCache.set(dirPath, ig)
+  ignoreRulesCache.set(cacheKey, ig)
   return ig
 }
 
 /**
- * Gets all .gitignore files from a path up to the root
+ * Gets all .gitignore files from the git root down to the specified path
  * @param {string} itemPath - Path to start from
- * @param {string} rootPath - Root directory path
+ * @param {string} startPath - Starting directory for tree generation
  * @returns {Map<string, string>} - Map of directory paths to gitignore contents
  */
-function getGitignoreFiles(itemPath, rootPath) {
+function getGitignoreFiles(itemPath, startPath) {
   const gitignoreFiles = new Map()
-  let currentPath = itemPath
   
-  while (currentPath && currentPath.startsWith(rootPath)) {
-    const gitignoreContent = readGitignoreFile(currentPath)
-    if (gitignoreContent) {
-      gitignoreFiles.set(currentPath, gitignoreContent)
-    }
-    
-    // Move to parent directory
+  // Find the git repository root
+  const gitRoot = findGitRoot(startPath)
+  const searchRoot = gitRoot || startPath
+  
+  // Collect all .gitignore files from git root to the item path
+  let currentPath = itemPath
+  const pathsToCheck = []
+  
+  // Build list of paths to check from item path up to search root
+  while (currentPath && currentPath.startsWith(searchRoot)) {
+    pathsToCheck.unshift(currentPath)
     const parentPath = path.dirname(currentPath)
     if (parentPath === currentPath) break
     currentPath = parentPath
+  }
+  
+  // Also ensure we check the search root itself
+  if (searchRoot && !pathsToCheck.includes(searchRoot)) {
+    pathsToCheck.unshift(searchRoot)
+  }
+  
+  // Read .gitignore files in order from root to leaf
+  for (const checkPath of pathsToCheck) {
+    const gitignoreContent = readGitignoreFile(checkPath)
+    if (gitignoreContent) {
+      gitignoreFiles.set(checkPath, gitignoreContent)
+    }
   }
   
   return gitignoreFiles
@@ -130,6 +189,7 @@ function readGitignoreFile(dirPath) {
  */
 function clearIgnoreCache() {
   ignoreRulesCache.clear()
+  gitRootCache.clear()
 }
 
 /**
