@@ -44,13 +44,32 @@ function activate(context) {
 			}
 			const fileTree = await generateFileTree(targetPath)
 			await copyToClipboard(fileTree)
-			vscode.window.showInformationMessage('Copied file tree from this directary to clipboard.')
+			vscode.window.showInformationMessage('Copied file tree from this directory to clipboard.')
 		} catch (error) {
 			handleError(error, targetPath)
 		}
 	})
+
+	const commandDirectoryTree = vscode.commands.registerCommand('fileTreeExtractor.copyDirectoryTree', async (uri) => {
+		let rootPath
+		try {
+			const workspaceFolder = vscode.workspace.workspaceFolders
+			if (!workspaceFolder || workspaceFolder.length === 0) {
+				vscode.window.showErrorMessage('No workspace folder found.')
+				return
+			}
+			rootPath = workspaceFolder[0].uri.fsPath
+			const directoryTree = await generateFileTree(rootPath, { directoryOnly: true })
+			await copyToClipboard(directoryTree)
+			vscode.window.showInformationMessage('Copied directory tree to clipboard.')
+		} catch (error) {
+			handleError(error, rootPath)
+		}
+	})
+
 	context.subscriptions.push(command)
 	context.subscriptions.push(commandDir)
+	context.subscriptions.push(commandDirectoryTree)
 }
 
 function handleError(error, path) {

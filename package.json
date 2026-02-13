@@ -28,6 +28,9 @@
     "url": "https://github.com/fuzionix/vscode-file-tree/issues"
   },
   "homepage": "https://github.com/fuzionix/vscode-file-tree",
+  "sponsor": {
+    "url": "https://github.com/sponsors/fuzionix"
+  },
   "activationEvents": [],
   "main": "./src/extension.js",
   "contributes": {
@@ -39,6 +42,10 @@
       {
         "command": "fileTreeExtractor.copyFileTreeFromThisDir",
         "title": "Copy File Tree From This Directory"
+      },
+      {
+        "command": "fileTreeExtractor.copyDirectoryTree",
+        "title": "Copy Directory Tree"
       },
       {
         "command": "fileTreeExtractor.reportIssue",
@@ -54,6 +61,10 @@
         {
           "command": "fileTreeExtractor.copyFileTreeFromThisDir",
           "group": "6_copypath@500"
+        },
+        {
+          "command": "fileTreeExtractor.copyDirectoryTree",
+          "group": "6_copypath@600"
         }
       ]
     },
