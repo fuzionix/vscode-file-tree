@@ -35,7 +35,7 @@ Generate a directory structure with a simple copy and paste.
 
 </br>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/fuzionix/vscode-file-tree/refs/heads/main/media/demo.gif" alt="File Tree Extractor Gif Demo" width="640" />
+  <img src="https://raw.githubusercontent.com/fuzionix/vscode-file-tree/refs/heads/main/media/demo.gif" alt="File Tree Extractor Gif Demo" width="840" />
 </p>
 
 ## Features
