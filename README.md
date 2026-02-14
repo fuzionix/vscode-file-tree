@@ -9,6 +9,27 @@ File Tree Extractor
 </h1>
 
 <p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=Fuzionix.file-tree-extractor">
+    <img src="https://img.shields.io/badge/VS%20Code-File%20Tree%20Extractor-3799fb?style=flat-square&labelColor=1f1f1f" alt="VS Code Extension" />
+  </a>
+  <a href="https://open-vsx.org/extension/Fuzionix/file-tree-extractor">
+    <img src="https://img.shields.io/badge/OpenVSX-File%20Tree%20Extractor-6537fb?style=flat-square&labelColor=1f1f1f" alt="Open VSX" />
+  </a>
+  <a href="https://github.com/fuzionix/vscode-file-tree/releases">
+    <img src="https://img.shields.io/github/v/release/fuzionix/vscode-file-tree?style=flat-square&color=fb8237&labelColor=1f1f1f" alt="Latest Release" />
+  </a>
+  <a href="https://github.com/fuzionix/vscode-file-tree">
+    <img src="https://img.shields.io/github/stars/fuzionix/vscode-file-tree?style=flat-square&color=fff&labelColor=1f1f1f" alt="GitHub Stars" />
+  </a>
+  <a href="https://github.com/fuzionix/vscode-file-tree/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square&color=d4fb37&labelColor=1f1f1f" alt="MIT License" />
+  </a>
+  <a href="https://github.com/fuzionix/vscode-file-tree/issues">
+    <img src="https://img.shields.io/github/issues/fuzionix/vscode-file-tree?style=flat-square&color=fb5437&labelColor=1f1f1f" alt="Issues" />
+  </a>
+</p>
+
+<p align="center">
 Generate a directory structure with a simple copy and paste.
 </p>
 

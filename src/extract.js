@@ -21,14 +21,17 @@ const FILE_ICONS = {
 /**
  * Generates a file tree structure starting from the given path
  * @param {string} startPath - The root path to start generating the tree from
+ * @param {Object} configOverrides - Optional configuration overrides
  * @returns {Promise<string>} A promise that resolves to the file tree as a string
  */
-async function generateFileTree(startPath) {
+async function generateFileTree(startPath, configOverrides = {}) {
   try {
     clearIgnoreCache()
     
+    const baseConfig = config.getAll()
+    const buildConfig = { ...baseConfig, ...configOverrides }
+    
     // Validate configuration
-    const buildConfig = config.getAll()
     const configErrors = config.validateConfig(buildConfig)
     if (configErrors.length > 0) {
       throw new ConfigurationError(configErrors)
